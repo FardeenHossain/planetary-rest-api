@@ -41,7 +41,10 @@ def db_seed():
     db.session.add(earth)
     db.session.add(mars)
     db.session.add(saturn)
-    db.session(test_user)
+    db.session.add(test_user)
+
+    db.session.commit()
+    print('Database seeded!')
 
 
 @app.route('/')
@@ -72,6 +75,12 @@ def url_variables(name: str, age: int):
             message="Sorry " + name + ", you are not old enough"), 401
     else:
         return jsonify(message="Welcome " + name)
+
+
+@app.route('/planets', methods=['GET'])
+def planets():
+    planets_list = Planet.query.all()
+    return jsonify(data=planets_list)
 
 
 # Database models
