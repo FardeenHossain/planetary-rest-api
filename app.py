@@ -119,6 +119,23 @@ def add_planet():
         return jsonify(message="Plannet added"), 201
 
 
+@app.route('/update_planet', methods=['PUT'])
+@jwt_required()
+def update_planet():
+    planet_id = int(request.form['planet_id'])
+    planet = Planet.query.filter_by(planet_id=planet_id).first()
+    if planet:
+        planet.planet_name = request.form['planet_name']
+        planet.mass = float(request.form['mass'])
+        planet.radius = float(request.form['radius'])
+        planet.distance = float(request.form['distance'])
+
+        db.session.commit()
+        return jsonify(message="Planet updated"), 202
+    else:
+        jsonify(message="That planet does not exist"), 404
+
+
 @app.route('/register', methods=['POST'])
 def register():
     email = request.form['email']
