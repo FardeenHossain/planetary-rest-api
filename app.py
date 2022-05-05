@@ -31,13 +31,13 @@ def db_drop():
 
 @app.cli.command('db_seed')
 def db_seed():
-    earth = Planet(name='Earth', mass=5.972e24, radius=6371,
+    earth = Planet(planet_name='Earth', mass=5.972e24, radius=6371,
                    distance=149.6e6)
 
-    mars = Planet(name='Mars', mass=6.39e23, radius=3389.5,
+    mars = Planet(planet_name='Mars', mass=6.39e23, radius=3389.5,
                   distance=227.9e6)
 
-    saturn = Planet(name='Saturn', mass=5.683e26, radius=58232,
+    saturn = Planet(planet_name='Saturn', mass=5.683e26, radius=58232,
                     distance=1.434e9)
 
     test_user = User(first_name='Fardeen', last_name='Hossain',
@@ -99,6 +99,25 @@ def planet_details(planet_id: int):
         return jsonify(message="That planet does not exists"), 404
 
 
+@app.route('/add_planet', methods=['POST'])
+def add_planet():
+    planet_name = request.form['planet_name']
+    test = Planet.query.filter_by(planet_name=planet_name).first()
+    if test:
+        return jsonify(message="That planet already exists"), 409
+    else:
+        mass = float(request.form['mass'])
+        radius = float(request.form['radius'])
+        distance = float(request.form['distance'])
+
+        new_planet = Planet(planet_name=planet_name, mass=mass, radius=radius,
+                            distance=distance)
+
+        db.session.add(new_planet)
+        db.session.commit()
+        return jsonify(message="Plannet added"), 201
+
+
 @app.route('/register', methods=['POST'])
 def register():
     email = request.form['email']
@@ -146,7 +165,7 @@ class User(db.Model):
 class Planet(db.Model):
     __tablename__ = 'planets'
     planet_id = Column(Integer, primary_key=True)
-    name = Column(String)
+    planet_name = Column(String)
     mass = Column(Float)
     radius = Column(Float)
     distance = Column(Float)
