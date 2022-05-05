@@ -12,6 +12,38 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(
 db = SQLAlchemy(app)
 
 
+@app.cli.command('db_create')
+def db_create():
+    db.create_all()
+    print('Database created!')
+
+
+@app.cli.command('db_drop')
+def db_drop():
+    db.drop_all()
+    print('Database dropped!')
+
+
+@app.cli.command('db_seed')
+def db_seed():
+    earth = Planet(name='Earth', mass=5.972e24, radius=6371,
+                   distance=149.6e6)
+
+    mars = Planet(name='Mars', mass=6.39e23, radius=3389.5,
+                  distance=227.9e6)
+
+    saturn = Planet(name='Saturn', mass=5.683e26, radius=58232,
+                    distance=1.434e9)
+
+    test_user = User(first_name='Fardeen', last_name='Hossain',
+                     email='fardeen@email.com', password='password')
+
+    db.session.add(earth)
+    db.session.add(mars)
+    db.session.add(saturn)
+    db.session(test_user)
+
+
 @app.route('/')
 def home():
     return jsonify(message='Hello from the Planetary API!'), 200
@@ -45,17 +77,17 @@ def url_variables(name: str, age: int):
 # Database models
 class User(db.Model):
     __tablename__ = 'users'
-    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, primary_key=True)
     first_name = Column(String)
     last_name = Column(String)
     email = Column(String, unique=True)
     password = Column(String)
 
 
-class Planets(db.Model):
+class Planet(db.Model):
     __tablename__ = 'planets'
     planet_id = Column(Integer, primary_key=True)
-    planet_name = Column(String)
+    name = Column(String)
     mass = Column(Float)
     radius = Column(Float)
     distance = Column(Float)
